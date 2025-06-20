@@ -1,0 +1,82 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto&display=swap");
+
+/* Custom Fonts: CircularWeb, General, Robert Regular & Medium, Zentry */
+@font-face {
+  font-family: "Circular";
+  src: url("/fonts/circularweb-book.woff2") format("woff2");
+}
+@font-face {
+  font-family: "General";
+  src: url("/fonts/general.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Robert";
+  src: url("/fonts/robert-regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Robert Medium";
+  src: url("/fonts/robert-medium.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Zentry";
+  src: url("/fonts/zentry-regular.woff2") format("woff2");
+}
+
+/* Tailwind  */
+@import "tailwindcss";
+
+/* Custom base style */
+body {
+  font-familty: "General", sans-serif;
+  width: 100dvw;
+  background-color: #dfdff0;
+  overflow-x: hidden;
+}
+
+@layer base {
+}
+
+/* Font added to theme */
+@theme {
+  /* Font Families */
+  --font-roboto: "Roboto", sans-serif;
+  --font-robert: "Robert", sans-serif;
+  --font-robert-md: "Robert Medium", sans-serif;
+  --font-circularweb: "Circular", sans-serif;
+  --font-general: "General", sans-serif;
+  --font-zentry: "Zentry", sans-serif;
+
+  /* Custom Colors: Blue, Violet, Yellow  */
+  --color-blue-50: #dfdff0;
+  --color-blue-75: #dfdff2;
+  --color-blue-100: #f0f2fa;
+  --color-blue-200: #010101;
+  --color-blue-300: #4fb7dd;
+
+  --color-violet-300: #5724ff;
+  --color-yellow-100: #8e983f;
+  --color-yellow-300: #edff66;
+}
+
+/* Utilities */
+
+@layer utilities {
+  .mask-clip-path {
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 0% 100%);
+  }
+  .absolute-center {
+    @apply absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2;
+  }
+  .special-font b {
+    font-family: "Zentry";
+    font-feature-settings: "ss01" on;
+  }
+
+  .flex-center {
+    @apply flex justify-center items-center;
+  }
+
+  .hero-heading {
+    @apply uppercase font-zentry font-black text-5xl sm:right-10 sm:text-7xl md:text-9xl lg:text-[12rem];
+  }
+}
