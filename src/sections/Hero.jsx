@@ -1,22 +1,31 @@
-import { useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import Button from "../components/Button.jsx"
 import { TiLocationArrow } from "react-icons/ti"
 import { useGSAP } from "@gsap/react"
 import gsap from "gsap"
+
 const Hero = () => {
   const [currentVideoIndex, setCurrentVideoIndex] = useState(1)
   const [loadedVideos, setLoadedVideos] = useState(0)
-  const [isLoading, setLoading] = useState(false)
+  const [isLoading, setLoading] = useState(true)
   const [hasClicked, setHasClicked] = useState(false)
 
   // Video Ref for next video
   const nextVideoRef = useRef(null)
 
   const totalVideos = 4
-
   const handleVideoLoad = () => {
-    setLoadedVideos((prev) => prev + 1)
+    setLoadedVideos((prev) => {
+      const updated = prev + 1
+      console.log(`Video Loaded: ${updated}/${totalVideos}`)
+      return updated
+    })
   }
+  useEffect(() => {
+    if (loadedVideos === totalVideos - 1) {
+      setLoading(false)
+    }
+  }, [loadedVideos, isLoading])
 
   // 0 % 4 = 0 + 1 => 1
   // 1 % 4 = 1 + 1 => 2
@@ -31,6 +40,7 @@ const Hero = () => {
   }
   const getVideoSrc = (index) => `/videos/hero-${index}.mp4`
 
+  // Video Transition
   useGSAP(
     () => {
       if (hasClicked) {
@@ -60,8 +70,50 @@ const Hero = () => {
     { dependencies: [currentVideoIndex], revertOnUpdate: true }
   )
 
+  // Scroll Trigger
+  useGSAP(() => {
+    gsap.set("#video-frame", {
+      clipPath: "polygon(14% 0, 72% 0, 90% 90%, 0 100%)",
+      borderRadius: "0% 0% 40% 10%",
+    })
+    gsap.from("#video-frame", {
+      clipPath: "polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%)",
+      borderRadius: "0 0 0 0",
+      ease: "power1.inOut",
+
+      scrollTrigger: {
+        trigger: "#video-frame",
+        start: "center center",
+        end: "bottom center",
+        scrub: true,
+      },
+    })
+  })
+
+  // if (isLoading) {
+  //   return (
+  //     <div className="flex-center  h-dvh w-screen bg-violet-50">
+  //       <div className="three-body">
+  //         <div className="three-body__dot"></div>
+  //         <div className="three-body__dot"></div>
+  //         <div className="three-body__dot"></div>
+  //       </div>
+  //     </div>
+  //   )
+  // }
+
   return (
     <div className="relative h-dvh w-screen overflow-x-hidden">
+      {isLoading && (
+        <div className="flex-center absolute z-[100] h-dvh w-screen overflow-hidden bg-violet-50">
+          <div className="three-body">
+            <div className="three-body__dot"></div>
+            <div className="three-body__dot"></div>
+            <div className="three-body__dot"></div>
+          </div>
+        </div>
+      )}
+
       {/* Video Frame Container */}
       <div
         id="video-frame"
@@ -69,7 +121,7 @@ const Hero = () => {
       >
         {/* Videos */}
         <div>
-          <div className="border mask-clip-path absolute-center z-50 size-64 cursor-pointer overflow-hidden rounded-lg">
+          <div className=" mask-clip-path absolute-center z-50 size-64 cursor-pointer overflow-hidden rounded-lg">
             <div
               onClick={handleMiniVideoClick}
               className="origin-center scale-50 opacity-0 transition-all ease-in duration-500  hover:scale-100 hover:opacity-100"
@@ -78,8 +130,9 @@ const Hero = () => {
                 onLoadedData={handleVideoLoad}
                 id="current-video"
                 ref={nextVideoRef}
-                // if next video is last video + 1 (out of range), go to first video
-                src={getVideoSrc((currentVideoIndex % totalVideos) + 1)}
+                // nextVideoIndex might be 1, 2, 3, 4 and when added 1 at 4 it will be 5, causing empty video
+                // so use modulus operator to get 1, 2, 3, 4
+                src={getVideoSrc(nextVideoIndex)}
                 className="size-64 object-cover scale-150 object-center"
               />
             </div>
@@ -96,9 +149,20 @@ const Hero = () => {
             onLoadedData={handleVideoLoad}
           />
 
+          {/* this the the main video which becomes last video when next video is clicked 
+            thus current - 1 will be the last video
+            but when currentVideoIndex is 1, the last video will be  4 which is totalVideos
+            so currentVideoIndex is 1, 2, 3, 4, not 0, 1, 2, 3
+          */}
           <video
+            onLoadedData={handleVideoLoad}
+            id="last-video"
             src={getVideoSrc(
-              !hasClicked ? currentVideoIndex : currentVideoIndex - 1
+              !hasClicked
+                ? currentVideoIndex
+                : currentVideoIndex - 1 == 0
+                ? totalVideos
+                : currentVideoIndex - 1
             )}
             autoPlay
             muted
@@ -126,14 +190,15 @@ const Hero = () => {
           </div>
         </div>
 
-        {/* Bottom Right */}
         <h1 className="special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
           G<b>a</b>
           ming
         </h1>
       </div>
+
+      {/* Bottom Right */}
       {/* Below Hero Copy as scroll takes away hero section */}
-      <h1 className="special-font hero-heading absolute bottom-5 right-5  text-black">
+      <h1 className="special-font hero-heading absolute bottom-5  right-5  text-black">
         G<b>a</b>
         ming
       </h1>
